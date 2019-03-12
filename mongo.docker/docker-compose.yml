@@ -1,0 +1,34 @@
+version: "3.5"
+
+volumes:
+  mongo-data:
+
+services:
+  mongo:
+    container_name: mongodb
+    build:
+      context: .
+      dockerfile: mongo.Dockerfile
+    hostname: ${MONGODB_HOSTNAME}
+    restart: on-failure
+    env_file:
+      - .env
+    ports:
+      - ${MONGODB_PORT}:27017
+    environment:
+      - "MONGO_INITDB_ROOT_USERNAME=${MONGODB_ADMINUSER}"
+      - "MONGO_INITDB_ROOT_PASSWORD=${MONGODB_ADMINPASSWORD}"
+    volumes:
+      - mongo-data:/data/db
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    command:
+      - --smallfiles
+    labels:
+      - "traefik.enable=false"
+    healthcheck:
+      test: echo 'db.stats().ok' | mongo localhost:27017/test --quiet
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 35s

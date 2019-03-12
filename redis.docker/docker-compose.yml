@@ -1,0 +1,25 @@
+version: "3.5"
+
+volumes:
+  redisdb-data:
+
+services:
+  redis:
+    container_name: redisdb
+    build:
+      context: .
+      dockerfile: redis.Dockerfile
+    hostname: ${REDIS_HOSTNAME}
+    restart: on-failure
+    env_file:
+      - .env
+    ports:
+      - ${REDIS_PORT}:6379
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redisdb-data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    labels:
+      - "traefik.enable=false"

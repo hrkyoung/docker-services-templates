@@ -1,0 +1,51 @@
+version: "3.5"
+
+networks:
+  reverse-proxy-network:
+    external:
+      name: reverse-proxy-network
+
+services:
+  traefik:
+    container_name: traefik-reverse-proxy
+    build:
+      context: .
+      dockerfile: traefik.Dockerfile
+    hostname: ${TRAEFIK_HOSTNAME}
+    restart: on-failure
+    env_file:
+      - .env
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - reverse-proxy-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.toml:/etc/traefik/traefik.toml
+      - ./users.htpasswd:/etc/traefik/.htpasswd
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    command:
+      - --debug=${TRAEFIK_DEBUG}
+      - --retry
+      - --logLevel=${TRAEFIK_LOG_LEVEL}
+      - --api=${TRAEFIK_API}
+      - --api.dashboard=${TRAEFIK_DASHBOARD}
+      - --ping
+      - --docker
+      - --docker.watch=true
+      - --docker.exposedbydefault=false
+      - --docker.domain=${DOMAIN}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=Host:traefik.${DOMAIN}"
+      - "traefik.port=8080"
+      - "traefik.frontend.auth.basic.usersFile=/etc/traefik/.htpasswd"
+      - "traefik.frontend.auth.basic.removeHeader=true"
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

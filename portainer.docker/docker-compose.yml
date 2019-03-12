@@ -1,0 +1,30 @@
+version: "3.5"
+
+networks:
+  reverse-proxy-network:
+    external:
+      name: reverse-proxy-network
+
+volumes:
+  portainer-data:
+
+services:
+  portainer:
+    container_name: portainer
+    image: portainer/portainer
+    hostname: ${PORTAINER_HOSTNAME}
+    restart: on-failure
+    env_file:
+      - .env
+    networks:
+      - reverse-proxy-network
+    expose:
+      - 9000
+    volumes:
+      - portainer-data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=Host:portainer.${DOMAIN}"

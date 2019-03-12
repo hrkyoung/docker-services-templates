@@ -1,0 +1,27 @@
+version: "3.5"
+
+volumes:
+  postgres-data:
+
+services:
+  postgres:
+    container_name: postgreSQLdb
+    build:
+      context: .
+      dockerfile: postgres.Dockerfile
+    hostname: ${POSTGRES_HOSTNAME}
+    restart: on-failure
+    env_file:
+      - .env
+    ports:
+      - ${POSTGRES_PORT}:5432
+    environment:
+      - "POSTGRES_USER=root"
+      - "POSTGRES_PASSWORD=${POSTGRES_ROOT_PASSWORD}"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgresql.conf:/usr/share/postgresql/postgresql
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    labels:
+      - "traefik.enable=false"

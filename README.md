@@ -11,6 +11,8 @@ RFC 2119.
 
 ### Usage
 
+Download / clone this repo and modify it.
+
 Add a new docker service by creating a folder using the following convention: <docker_service>.docker. The folder MUST contain a docker-compose.yml file.
 
 Example:
@@ -20,6 +22,7 @@ mariadb.docker
     - .env
     - mariadb.Dockerfile
 ```
+
 #### docker-init.sh
 A very basic script can help orchestrate running multiple docker-compose. By default, it will run all docker-compose.yml files under any folders inside init.docker directory.
 

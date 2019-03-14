@@ -42,3 +42,7 @@ run           docker-init run                     Builds all docker-compose.yml 
 ### Contributing
 
 Help this repo grow by adding more examples! 
+
+### LICENSE
+
+See License.

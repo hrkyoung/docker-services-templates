@@ -7,7 +7,7 @@ networks:
 
 services:
   traefik:
-    container_name: traefik-reverse-proxy
+    container_name: traefik
     build:
       context: .
       dockerfile: traefik.Dockerfile
@@ -26,6 +26,7 @@ services:
       - ./users.htpasswd:/etc/traefik/.htpasswd
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+      - ./webroot:/srv/webroot
     command:
       - --debug=${TRAEFIK_DEBUG}
       - --retry
@@ -39,13 +40,35 @@ services:
       - --docker.domain=${DOMAIN}
     labels:
       - "traefik.enable=true"
-      - "traefik.frontend.rule=Host:traefik.${DOMAIN}"
       - "traefik.port=8080"
+      - "traefik.frontend.rule=Host:traefik.${DOMAIN}"
       - "traefik.frontend.auth.basic.usersFile=/etc/traefik/.htpasswd"
       - "traefik.frontend.auth.basic.removeHeader=true"
+      - "traefik.frontend.errors.network.status=400-499"
+      - "traefik.frontend.errors.network.backend=traefik-pages"
+      - "traefik.frontend.errors.network.query=404.html"
     healthcheck:
       test: ["CMD", "traefik", "healthcheck", "--ping"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  traefik-pages:
+    container_name: traefik-pages
+    image: httpd:alpine
+    restart: on-failure
+    env_file:
+      - .env
+    networks:
+      - reverse-proxy-network
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./webroot:/usr/local/apache2/htdocs
+    labels:
+      - "traefik.frontend.priority=10"
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=HostRegexp:{subdomain:[a-z]+}.${DOMAIN}, ${DOMAIN}"
+      - "traefik.backend=traefik-pages"
+

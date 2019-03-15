@@ -36,7 +36,8 @@ Command       Example                             Description
 add           docker-init.sh add mariadb          Adds a service to the run folder (default: init.docker)
 rm            docker-init.sh rm mariadb           Removes a service from the run folder (default: init.docker)
 ls            docker-init.sh ls                   Lists all services in the run folder (default: init.docker)
-run           docker-init run                     Builds all docker-compose.yml files in the run folder (default: init.docker)
+up            docker-init up                      Calls docker-compose up on all docker-compose.yml files in the run folder (default: init.docker); accepts all arguments for docker-compose
+down          docker-init down                    Calls docker-compose down on all docker-compose.yml files in the run folder (default: init.docker); accepts all arguments for docker-compose
 
 ```
 ### Contributing

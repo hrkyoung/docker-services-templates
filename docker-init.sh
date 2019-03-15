@@ -12,7 +12,7 @@ main(){
     "ls")
         list "$@"
         ;;
-    "run")
+    "up" | "down")
         run "$@"
         ;;
     *)
@@ -35,7 +35,7 @@ add(){
 }
 
 serviceExists(){
-    if [[ -z "$2" ]]
+    if [[ ! -d "$PWD/$2.docker" ]]
         then
         error
     fi
@@ -70,12 +70,16 @@ list(){
 }
 
 run(){
-    setFolder "$@"
+    folder="init.docker"
     find "./${folder}" -mindepth 1 -maxdepth 1 -type l |
      while read LINE
      do
-        cd "$PWD/${LINE}"
-        sudo docker-compose up --build -d
+         cd "${LINE}"
+         if [[ $? -eq 0 ]]
+            then
+            sudo docker-compose $@
+            cd "../../"
+         fi
      done
 }
 

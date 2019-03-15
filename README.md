@@ -13,15 +13,9 @@ RFC 2119.
 
 Download / clone this repo and modify it.
 
-Add a new docker service by creating a folder using the following convention: <docker_service>.docker. The folder MUST contain a docker-compose.yml file.
+You use the contents of <service>.docker folders as a reference to build your own docker-compose / Dockerfiles.
 
-Example:
-```
-mariadb.docker
-    - docker-compose.yml
-    - .env
-    - mariadb.Dockerfile
-```
+Alternatively, you can leverage the docker-init.sh script for basic docker-compose orchestration. See docker-init.sh section below. 
 
 #### docker-init.sh
 A very basic script can help orchestrate running multiple docker-compose. By default, it will run all docker-compose.yml files under any folders inside init.docker directory.
@@ -40,9 +34,32 @@ up            docker-init up                      Calls docker-compose up on all
 down          docker-init down                    Calls docker-compose down on all docker-compose.yml files in the run folder (default: init.docker); accepts all arguments for docker-compose
 
 ```
+
+#### docker-init.sh add | rm | ls
+```
+docker-init.sh add mariadb
+# adds a symlink to the mariadb.docker folder inside init.docker.
+# rm removes the symlink and ls lists all contents of init.docker
+```
+#### docker-init.sh up | down
+```
+docker-init.sh up --build -d
+# Runs docker-compose on the symlinks / folders inside init.docker
+```
+
+Add a new docker service by creating a folder using the following convention: <docker_service>.docker. The folder MUST contain a docker-compose.yml file.
+
+Example:
+```
+mariadb.docker
+    - docker-compose.yml
+    - .env
+    - mariadb.Dockerfile
+```
+
 ### Contributing
 
-Help this repo grow by adding more examples! 
+Help this repo grow by adding more examples! Check out the docker-init.sh section for folder structures when contributing example docker-compose and Dockerfiles!
 
 ### LICENSE
 

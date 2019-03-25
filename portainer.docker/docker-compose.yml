@@ -12,7 +12,6 @@ services:
   portainer:
     container_name: portainer
     image: portainer/portainer
-    hostname: ${PORTAINER_HOSTNAME}
     restart: on-failure
     env_file:
       - .env

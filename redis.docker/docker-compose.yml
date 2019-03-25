@@ -9,7 +9,6 @@ services:
     build:
       context: .
       dockerfile: redis.Dockerfile
-    hostname: ${REDIS_HOSTNAME}
     restart: on-failure
     env_file:
       - .env

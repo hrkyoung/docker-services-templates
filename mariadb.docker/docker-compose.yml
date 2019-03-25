@@ -9,7 +9,6 @@ services:
     build:
       context: .
       dockerfile: mariadb.Dockerfile
-    hostname: ${MARIADB_HOSTNAME}
     restart: on-failure
     env_file:
       - .env

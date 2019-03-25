@@ -9,7 +9,6 @@ services:
     build:
       context: .
       dockerfile: mongo.Dockerfile
-    hostname: ${MONGODB_HOSTNAME}
     restart: on-failure
     env_file:
       - .env

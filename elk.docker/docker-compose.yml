@@ -1,0 +1,80 @@
+version: "3.5"
+
+networks:
+  reverse-proxy-network:
+    external:
+      name: reverse-proxy-network
+
+volumes:
+  elastic-data:
+
+services:
+  elastic:
+    container_name: elastic
+    image: elasticsearch:6.6.2
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ulimits:
+      nproc: 4096
+      nofile: 65536
+      memlock: -1
+    ports:
+      - ${ELASTIC_SEARCH_HTTP_PORT}:9200
+      - ${ELASTIC_SEARCH_COMM_PORT}:9300
+    networks:
+      - reverse-proxy-network
+    volumes:
+      - elastic-data:/usr/share/elasticsearch/data
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=9200"
+      - "traefik.frontend.rule=Host:elastic.${DOMAIN}"
+
+  kibana:
+    container_name: kibana
+    image: kibana:6.6.2
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      ELASTICSEARCH_URL: http://elastic:9200
+    ports:
+      - ${KIBANA_PORT}:5601
+    networks:
+      - reverse-proxy-network
+    volumes:
+      - ./kibana.yml:/etc/kibana/kibana.yml
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=5601"
+      - "traefik.frontend.rule=Host:kibana.${DOMAIN}"
+    depends_on:
+      - elastic
+
+  logstash:
+    container_name: logstash
+    image: logstash:6.6.2
+    restart: on-failure
+    env_file:
+      - .env
+    command: logstash -f /config/
+    environment:
+      - JAVA_OPTS=-Xms1g -Xmx1g∂
+    networks:
+      - reverse-proxy-network
+    volumes:
+      - ./logstash:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    labels:
+      - "traefik.enable=false"
+    depends_on:
+      - elastic

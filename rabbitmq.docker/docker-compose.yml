@@ -1,0 +1,21 @@
+version: "3.5"
+
+volumes:
+  rabbitmq-data:
+
+services:
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.7.13-management-alpine
+    restart: on-failure
+    hostname: rabbit_node1
+    ports:
+      - ${RABBITMQ_MANAGEMENT_PORT}:15672
+      - ${RABBITMQ_PORT}:5672
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+      - ./rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    labels:
+      - "traefik.enable=false"
